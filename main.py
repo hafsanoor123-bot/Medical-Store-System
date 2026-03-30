@@ -14,7 +14,7 @@ label = tk.Label(root, text="Hello Hafsa 👋", font=("Arial", 14))
 label.pack(pady=20)
 
 # button
-button = tk.Button(root, text="Click Me", command=lambda: print("Button clicked!"))
+button = tk.Button(root, text="Click Me", command=lambda: print("hafsa Noor!"))
 button.pack()
 
 # window run karna
