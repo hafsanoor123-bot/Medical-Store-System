@@ -34,7 +34,7 @@ button_options = {
 
 
 # Buttons
-btn1 = tk.Button(frame, text="Create Bill", **button_options , command=lambda: functions.create_bill(root))
+btn1 = tk.Button(frame, text="Create Bill", **button_options , command=lambda: functions.create_bill_screen(root))
 btn1.pack(side=tk.LEFT, padx=10)  # 10 px gap
 
 btn2 = tk.Button(frame, text="Manage Stock", **button_options , command=lambda:functions.manage_stock(root))
