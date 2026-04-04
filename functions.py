@@ -8,99 +8,82 @@ def go_back(frame):
     frame.destroy()
 
 
-# def create_bill(root):
-#     frame = tk.Frame(root, bg="white")
-#     frame.place(x=0, y=0, relwidth=1 , relheight=1)
+def create_bill_screen(root):
+    frame_1 = tk.Frame(root, bg = "#fafafa")
+    frame_1.place(x=0, y=0, relwidth=1 , relheight=1)
 
-#     # BACK BUTTON
-#     tk.Button(frame, text="Back", bg="#27762A" , fg="white", font= ("Verdana", 10, "bold") ,
-#                     command=lambda: go_back(frame)).place(x=0, y=0)
+    frame_2 = tk.LabelFrame(frame_1 , text="Current Bill" , bg="#fafafa" ,
+                          highlightbackground="black",
+                          font=("Arial", 12),)
+    frame_2.place(x=10, y=10, relwidth=0.5, relheight=0.9)
     
 
 
 
-# def create_bill_screen(root):
-#     frame = tk.Frame(root, bg="white")
-#     frame.place(x=0, y=0, relwidth=1, relheight=1)
+    frame_3 = tk.LabelFrame(frame_1, text="Product Management", bg="#fafafa",
+                        highlightbackground="black",
+                        font=("Arial", 12))
+    frame_3.place(relx=0.55, y=10, relwidth=0.35, height=250)
 
-#     # Title
-#     tk.Label(frame, text="INVOICE", font=("Arial", 20, "bold"), bg="white").pack(pady=10)
+    frame_4 = tk.Frame(frame_1, bg="#fafafa", highlightbackground="black" , highlightthickness=1)
+    frame_4.place(relx=0.55, y=270, relwidth=0.35, height=50)
 
-#     # Customer + Date
-#     top_frame = tk.Frame(frame, bg="white")
-#     top_frame.pack(pady=5)
+#     # Frame 3 (right side)
 
-
-#     tk.Label(top_frame, text="Date:", bg="white").grid(row=0, column=2)
-#     tk.Label(top_frame, text=datetime.now().strftime("%d-%m-%Y"), bg="white").grid(row=0, column=3)
-
-#     # Product Inputs
-#     input_frame = tk.Frame(frame, bg="white")
-#     input_frame.pack(pady=10)
-
-#     tk.Label(input_frame, text="Product").grid(row=0, column=0)
-#     tk.Label(input_frame, text="Price").grid(row=0, column=1)
-#     tk.Label(input_frame, text="Qty").grid(row=0, column=2)
-
-#     entry_product = tk.Entry(input_frame)
-#     entry_product.grid(row=1, column=0)
-
-#     entry_price = tk.Entry(input_frame)
-#     entry_price.grid(row=1, column=1)
-
-#     entry_qty = tk.Entry(input_frame)
-#     entry_qty.grid(row=1, column=2)
-
-#     # Table
-#     tree = ttk.Treeview(frame, columns=("P", "Pr", "Q", "T"), show="headings")
-#     tree.pack(pady=10)
-
-#     tree.heading("P", text="Product")
-#     tree.heading("Pr", text="Price")
-#     tree.heading("Q", text="Qty")
-#     tree.heading("T", text="Total")
-
-#     def add_item():
-#         p = entry_product.get()
-#         pr = float(entry_price.get())
-#         q = int(entry_qty.get())
-#         t = pr * q
-
-#         items.append(t)
-#         tree.insert("", "end", values=(p, pr, q, t))
-
-#     tk.Button(frame, text="Add Item", command=add_item).pack()
-
-#     # Total
-#     total_label = tk.Label(frame, text="Grand Total: 0", font=("Arial", 12, "bold"), bg="white")
-#     total_label.pack(pady=10)
-
-#     def generate_bill():
-#         total = sum(items)
-#         total_label.config(text=f"Grand Total: {total}")
-
-#     tk.Button(frame, text="Generate Bill", command=generate_bill).pack(pady=5)
-
-#     tk.Button(frame, text="Back", command=lambda: frame.destroy()).pack()
+#     frame_3 = tk.LabelFrame(frame_1 , text="Cart" , bg="#fafafa" ,
+#                          highlightbackground="black",
+#                          font=("Arial", 12),)
+    
+#     frame_3.place(x=380, y=10, width=350, height=250)
 
 
 
 
+# # Working in Product Managment 
 
-def create_bill_screen(root):
-    frame_1 = tk.Frame(root, bg="white")
-    frame_1.place(x=0, y=0, relwidth=1 , relheight=1)
+    input_1 = tk.Label(frame_3 , text="Description :" , font=("Arial", 14) , bg="#fafafa" )
+    input_1.place(x=20 , y=20)
+    description_entry = tk.Entry(frame_3 , highlightthickness=1 , highlightbackground="black")
+    description_entry.place(x=250 , y=25)
 
-    frame_2 = tk.Frame(frame_1, bg="lightgreen")
-    frame_2.place(x=0 , y=0 , relwidth=1 , height=50)
-    tk.Label(frame_2, text="Rehman Medical Store", font=("Verdana", 15), bg="white").pack(pady=10)
-    # tk.Label(frame_2, text="100Feet Road, Society Sukkur", font=("Verdana", 15), bg="white").pack(pady=10)
+    input_2 = tk.Label(frame_3 , text="Rate :" , font=("Arial", 14) , bg="#fafafa"  )
+    input_2.place(x=20 , y=60)
+    rate_entry = tk.Entry(frame_3 , highlightthickness=1 , highlightbackground="black")
+    rate_entry.place(x=250 , y=65)
+    
+    input_3 = tk.Label(frame_3 , text="Quantity:" , font=("Arial", 14) , bg="#fafafa"  )
+    input_3.place(x=20 , y=100)
+    quantity_entry = tk.Entry(frame_3 , highlightthickness=1 , highlightbackground="black")
+    quantity_entry.place(x=250 , y=105)
+
+    add_btn = tk.Button(
+    frame_3,
+    text="Add to Cart",
+    font=("Arial", 12, "bold"),
+    bg="#4CAF50",   # nice green button
+    fg="white",
+    padx=10,
+    pady=5
+)
+    
+    add_btn.place(relx=0.5, rely=1, anchor="s", y=-20)
 
 
-    frame_3 = tk.LabelFrame(frame_1 , text="Product Management" , bg="white" ,
-                         highlightthickness=1 , highlightbackground="black",
-                         font=("Arial", 12, "bold"),)
-    frame_3.place(x=0 , y=70, relwidth=0.5 , height=300)
+    input_4 = tk.Label(frame_4, text="Discount:", font=("Arial", 14), bg="#fafafa")
+    input_4.place(x=20, y=10)
+
+    discount_entry = tk.Entry(frame_4, highlightthickness=1, highlightbackground="black", width=20)
+    discount_entry.place(x=250, y=15) 
+
+#     # input_4 = tk.Label(frame_2 , text="Discount:" , font=("Arial", 14) , bg="#fafafa"  )
+#     # input_4.place(x=20 , y=140)
+#     # quantity_entry = tk.Entry(frame_2 , highlightthickness=1 , highlightbackground="black")
+#     # quantity_entry.place(x=200 , y=145)
+
+#     # input_5 = tk.Label(frame_2 , text="Discount:" , font=("Arial", 14) , bg="#fafafa"  )
+#     # input_5.place(x=20 , y=180)
+#     # quantity_entry = tk.Entry(frame_2 , highlightthickness=1 , highlightbackground="black")
+#     # quantity_entry.place(x=200 , y=185)
 
 
 
@@ -111,22 +94,7 @@ root.state("zoomed")
 create_bill_screen(root)
 root.mainloop()
 
-def manage_stock(root):
-    frame = tk.Frame(root, bg="white")
-    frame.place(x=0, y=0, relwidth=1 , relheight=1)
 
-    # BACK BUTTON
-    tk.Button(frame, text="Back", bg="#27762A" , fg="white", font= ("Verdana", 10, "bold") ,
-                    command=lambda: go_back(frame)).place(x=10, y=10)
-    
-
-def sales_report(root):
-    frame = tk.Frame(root, bg="white")
-    frame.place(x=0, y=0, relwidth=1 , relheight=1)
-
-    # BACK BUTTON
-    tk.Button(frame, text="Back", bg="#27762A" , fg="white", font= ("Verdana", 10, "bold") ,
-                    command=lambda: go_back(frame)).place(x=10, y=10)
 
 
 
