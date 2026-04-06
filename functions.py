@@ -146,16 +146,8 @@ def create_bill_screen(root):
     frame_5 = tk.Frame(frame_1, bg="#fafafa", highlightbackground="black", highlightthickness=1)
     frame_5.place(relx=0.6, y=400, relwidth=0.35, height=100)
 
-
-    tk.Label(frame_5, text="Total Amount:", font=("Arial", 14), bg="#fafafa").place(x=20, y=10)
-    tk.Entry(frame_5, font=("Arial", 12), textvariable=amount_var, readonlybackground="white",
-             highlightthickness=1, highlightbackground="black",
-             state="readonly", width=20).place(x=250, y=10)
-
-    tk.Label(frame_5, text="Amount After Discount:", font=("Arial", 14), bg="#fafafa").place(x=20, y=45)
-    tk.Entry(frame_5, font=("Arial", 12), textvariable=amount_after_discount_var, readonlybackground="white",
-             highlightthickness=1, highlightbackground="black",
-             state="readonly", width=20).place(x=250, y=45)
+    frame_6 = tk.Frame(frame_1, bg="#fafafa", highlightbackground="black", highlightthickness=1)
+    frame_6.place(relx=0.6, y=550, relwidth=0.35, height=60)
 
 
 # # Working of frames  
@@ -213,6 +205,28 @@ def create_bill_screen(root):
     apply_btn.place(relx=0.5, rely=1, anchor="s", y=-10)
 
 
+    tk.Label(frame_5, text="Total Amount:", font=("Arial", 14), bg="#fafafa").place(x=20, y=10)
+    tk.Entry(frame_5, font=("Arial", 12), textvariable=amount_var, readonlybackground="white",
+             highlightthickness=1, highlightbackground="black",
+             state="readonly", width=20).place(x=250, y=10)
+
+    tk.Label(frame_5, text="Amount After Discount:", font=("Arial", 14), bg="#fafafa").place(x=20, y=45)
+    tk.Entry(frame_5, font=("Arial", 12), textvariable=amount_after_discount_var, readonlybackground="white",
+             highlightthickness=1, highlightbackground="black",
+             state="readonly", width=20).place(x=250, y=45)
+    
+
+        # Back Button - left side
+    back_btn = tk.Button(frame_6, text="Back", font=("Arial", 12, "bold"),
+                     bg="#f44336", fg="white", padx=10, pady=5,
+                     command=lambda: go_back(root))
+    back_btn.place(relx=0, rely=0.5, anchor="w", x=10)  # left side, vertically centered
+
+# Print Button - right side
+    print_btn = tk.Button(frame_6, text="Print", font=("Arial", 12, "bold"),
+                      bg="#4CAF50", fg="white", padx=10, pady=5,
+                      command=lambda: print("Printing Bill..."))
+    print_btn.place(relx=1, rely=0.5, anchor="e", x=-10)  # right side, vertically centered
 
 
 
