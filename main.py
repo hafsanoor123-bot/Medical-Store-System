@@ -1,5 +1,6 @@
 import tkinter as tk
-import functions
+import create_bill 
+import manage_stock
 
 #main window 
 root = tk.Tk()
@@ -33,14 +34,15 @@ button_options = {
 }
 
 
+
 # Buttons
-btn1 = tk.Button(frame, text="Create Bill", **button_options , command=lambda: functions.create_bill_screen(root))
+btn1 = tk.Button(frame, text="Create Bill", **button_options , command=lambda: create_bill.create_bill_screen(root))
 btn1.pack(side=tk.LEFT, padx=10)  # 10 px gap
 
-btn2 = tk.Button(frame, text="Manage Stock", **button_options , command=lambda:functions.manage_stock(root))
+btn2 = tk.Button(frame, text="Manage Stock", **button_options , command=lambda:manage_stock.open_stock_window(root))
 btn2.pack(side=tk.LEFT, padx=10)
 
-btn3 = tk.Button(frame, text="Sales Report", **button_options , command=lambda:functions.sales_report(root))
+btn3 = tk.Button(frame, text="Sales Report", **button_options , command=lambda:create_bill.sales_report(root))
 btn3.pack(side=tk.LEFT, padx=10)
 
 root.mainloop()
