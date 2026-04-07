@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
+from tkinter import messagebox
 
 
 # Back Function
@@ -76,6 +77,22 @@ def apply_discount(tree, discount_entry):
     amount_after_discount_var.set(round(after_discount, 2))
 
 
+def check_data():
+    des = description_entry.get()
+    rate = rate_entry.get()
+    quan = quantity_entry.get()
+
+    if des == "" or rate == "" or quan == "" :
+        messagebox.showwarning("Warning", "Please enter the data!")
+        return False
+    
+    return True
+
+def handle_submit():
+    if check_data():   # agar data sahi hai
+        add_to_cart(description_entry, rate_entry, quantity_entry, tree)
+
+
 def create_bill_screen(root):
 
     global description_entry, rate_entry, quantity_entry , discount_entry , tree
@@ -138,16 +155,16 @@ def create_bill_screen(root):
     frame_3 = tk.LabelFrame(frame_1, text="Add Cart", bg="#fafafa" , highlightthickness=1,
                         highlightbackground="black",
                         font=("Arial", 12))
-    frame_3.place(relx=0.6, y=10, relwidth=0.35, height=250)
+    frame_3.place(relx=0.6, y=30, relwidth=0.35, height=250)
 
     frame_4 = tk.Frame(frame_1, bg="#fafafa", highlightbackground="black" , highlightthickness=1)
-    frame_4.place(relx=0.6, y=270, relwidth=0.35, height=120)
+    frame_4.place(relx=0.6, y=300, relwidth=0.35, height=120)
 
     frame_5 = tk.Frame(frame_1, bg="#fafafa", highlightbackground="black", highlightthickness=1)
-    frame_5.place(relx=0.6, y=400, relwidth=0.35, height=100)
+    frame_5.place(relx=0.6, y=440, relwidth=0.35, height=100)
 
     frame_6 = tk.Frame(frame_1, bg="#fafafa", highlightbackground="black", highlightthickness=1)
-    frame_6.place(relx=0.6, y=550, relwidth=0.35, height=60)
+    frame_6.place(relx=0.6, y=580, relwidth=0.35, height=60)
 
 
 # # Working of frames  
@@ -175,7 +192,7 @@ def create_bill_screen(root):
     fg="white",
     padx=10,
     pady=5,
-    command=lambda: add_to_cart(description_entry, rate_entry, quantity_entry, tree)
+    command=lambda: handle_submit
 )
     
     add_btn.place(relx=0.5, rely=1, anchor="s", y=-20)
@@ -218,13 +235,13 @@ def create_bill_screen(root):
 
         # Back Button - left side
     back_btn = tk.Button(frame_6, text="Back", font=("Arial", 12, "bold"),
-                     bg="#f44336", fg="white", padx=10, pady=5,
+                     bg="#f44336", fg="white", padx=20, pady=5,
                      command=lambda: go_back(root))
     back_btn.place(relx=0, rely=0.5, anchor="w", x=10)  # left side, vertically centered
 
 # Print Button - right side
     print_btn = tk.Button(frame_6, text="Print", font=("Arial", 12, "bold"),
-                      bg="#4CAF50", fg="white", padx=10, pady=5,
+                      bg="#4CAF50", fg="white", padx=20, pady=5,
                       command=lambda: print("Printing Bill..."))
     print_btn.place(relx=1, rely=0.5, anchor="e", x=-10)  # right side, vertically centered
 
