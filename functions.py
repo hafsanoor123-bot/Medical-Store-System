@@ -3,6 +3,10 @@ from tkinter import ttk
 from datetime import datetime
 from tkinter import messagebox
 
+from bill_generator import generate_bill_pdf
+from tkinter import filedialog
+import os
+
 
 # Back Function
 def go_back(frame):
@@ -192,7 +196,7 @@ def create_bill_screen(root):
     fg="white",
     padx=10,
     pady=5,
-    command=lambda: handle_submit
+    command=lambda: handle_submit()
 )
     
     add_btn.place(relx=0.5, rely=1, anchor="s", y=-20)
@@ -239,14 +243,55 @@ def create_bill_screen(root):
                      command=lambda: go_back(root))
     back_btn.place(relx=0, rely=0.5, anchor="w", x=10)  # left side, vertically centered
 
+
+    
+
 # Print Button - right side
     print_btn = tk.Button(frame_6, text="Print", font=("Arial", 12, "bold"),
                       bg="#4CAF50", fg="white", padx=20, pady=5,
-                      command=lambda: print("Printing Bill..."))
+                      command=lambda: handle_print(tree , amount_var , amount_after_discount_var))
     print_btn.place(relx=1, rely=0.5, anchor="e", x=-10)  # right side, vertically centered
 
 
+def get_table_data(tree):
+    data = [["No", "Description", "Rate", "Quantity", "Amount"]]
+    for child in tree.get_children():
+        values = tree.item(child)["values"]
+        data.append(values)
+    return data
 
+
+from tkinter import filedialog
+from datetime import datetime
+
+def handle_print(tree, discount_amount, total_amount):
+    table_data = get_table_data(tree)
+
+    # Current date/time
+    now = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    default_filename = f"Bill_{now}_"
+
+    # Ask user to add a number or text
+    user_input = filedialog.asksaveasfilename(
+        defaultextension=".pdf",
+        initialfile=default_filename,  # Default file name
+        filetypes=[("PDF files", "*.pdf")],
+        title="Save Bill as PDF"
+    )
+
+    if user_input:
+        # Generate PDF
+        generate_bill_pdf(
+            user_input,
+            table_data,
+            shop_name="My Medical Store",
+            shop_address="Street 123, City",
+            discount=discount_amount,
+            total_amount=total_amount
+        )
+        print("Bill saved at:", user_input)
+
+        
 
 root = tk.Tk()
 root.title("Medical Store System")
