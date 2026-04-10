@@ -99,7 +99,6 @@ def open_stock_window(root):
     button_frame = tk.Frame(win)
     button_frame.pack(fill=tk.X)
 
-    tk.Button(button_frame, text="Add Row", command=add_row).pack(side=tk.LEFT, padx=5, pady=5)
     tk.Button(button_frame, text="Save", command=save_data).pack(side=tk.LEFT, padx=5, pady=5)
     tk.Button(button_frame, text="Back", command=back).pack(side=tk.LEFT, padx=5, pady=5)
     tk.Button(button_frame, text="Previous", command=prev_page).pack(side=tk.RIGHT, padx=5, pady=5)
