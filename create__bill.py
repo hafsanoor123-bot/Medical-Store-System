@@ -46,8 +46,129 @@ class BillingWindow:
         self.ent_qty      = None
         self.ent_discount = None
 
-        self._build_ui()
+        # Up/Down navigation ke liye ordered field list
+        # Index:  0=desc, 1=rate, 2=qty, 3=discount
+        self._nav_fields = []
 
+        self._build_ui()
+        self._bind_global_keys()
+
+    # ══════════════════════════════════════════
+    #  Global Key Bindings
+    # ══════════════════════════════════════════
+    def _bind_global_keys(self):
+        root = self.win
+
+        # ── 1) Alt → Description field pe focus
+        root.bind_all("<Alt_L>",        self._focus_desc)
+        root.bind_all("<Alt_R>",        self._focus_desc)
+
+        # ── 2) Up / Down → fields ke beech navigate (desc, rate, qty, discount)
+        root.bind_all("<Up>",           self._nav_up)
+        root.bind_all("<Down>",         self._nav_down)
+
+        # ── 3) Ctrl+A → tree mein saab select karo
+        root.bind_all("<Control-a>",    self._select_all_rows)
+        root.bind_all("<Control-A>",    self._select_all_rows)
+
+        # ── 4) Backspace → context-aware delete
+        root.bind_all("<BackSpace>",    self._backspace_action)
+
+        # ── 5) P / p → Print Bill
+        root.bind_all("<p>",            self._print_bill)
+        root.bind_all("<P>",            self._print_bill)
+
+        # ── 6) Escape → Back
+        root.bind_all("<Escape>",       self._go_back)
+
+        # ── 7) Fn keys → Print Bill (F2, F5, F8, F10)
+        for fn in ("<F2>", "<F5>", "<F8>", "<F10>"):
+            root.bind_all(fn, self._print_bill)
+
+        # ── 8) Delete key (jab Entry focused nahi) → Clear All (bina confirm)
+        #       SysRq / Print Screen key → Clear All
+        root.bind_all("<Delete>",       self._delete_key_action)
+        root.bind_all("<Print>",        self._force_clear_all)   # SysRq/PrtSc key
+
+    # ── Shortcut handlers ─────────────────────
+
+    def _focus_desc(self, event=None):
+        if self.ent_desc:
+            self.ent_desc.focus_set()
+
+    def _nav_up(self, event=None):
+        focused = self.win.focus_get()
+        if focused in self._nav_fields:
+            idx = self._nav_fields.index(focused)
+            prev_idx = (idx - 1) % len(self._nav_fields)
+            self._nav_fields[prev_idx].focus_set()
+        else:
+            if self._nav_fields:
+                self._nav_fields[0].focus_set()
+
+    def _nav_down(self, event=None):
+        focused = self.win.focus_get()
+        if focused in self._nav_fields:
+            idx = self._nav_fields.index(focused)
+            next_idx = (idx + 1) % len(self._nav_fields)
+            self._nav_fields[next_idx].focus_set()
+        else:
+            if self._nav_fields:
+                self._nav_fields[0].focus_set()
+
+    def _select_all_rows(self, event=None):
+        focused = self.win.focus_get()
+        if isinstance(focused, tk.Entry):
+            return  # Entry ka apna Ctrl+A chal ne do
+
+        all_items = self.tree.get_children()
+        if all_items:
+            self.tree.selection_set(all_items)
+            self.tree.focus_set()
+
+    def _backspace_action(self, event=None):
+        focused = self.win.focus_get()
+        if isinstance(focused, tk.Entry):
+            return  # Entry mein normal backspace hone do
+
+        sel = self.tree.selection()
+        if not sel:
+            return
+
+        all_items = self.tree.get_children()
+        if len(sel) == len(all_items) and len(all_items) > 0:
+            self._clear_all_no_confirm()
+        else:
+            self._remove_selected()
+
+    def _delete_key_action(self, event=None):
+        """
+        Delete key:
+        - Agar Entry focused hai → normal delete kaam kare
+        - Warna → sara cart clear karo (bina confirm)
+        """
+        focused = self.win.focus_get()
+        if isinstance(focused, tk.Entry):
+            return  # Entry mein normal Delete hone do
+        self._force_clear_all()
+
+    def _force_clear_all(self, event=None):
+        """SysRq / Delete (bahar se) → bina confirm ke sara table khali karo"""
+        if self.cart:
+            self._do_clear()
+
+    def _go_back(self, event=None):
+        toplevels = [w for w in self.win.winfo_children()
+                     if isinstance(w, tk.Toplevel)]
+        if toplevels:
+            toplevels[-1].destroy()
+            return
+        if self.back_cmd:
+            self.back_cmd()
+
+    # ══════════════════════════════════════════
+    #  UI Building
+    # ══════════════════════════════════════════
     def _build_ui(self):
         # ── Top Header Bar ──────────────────────────
         header = tk.Frame(self.win, bg=HEADER_BG, pady=12)
@@ -76,7 +197,14 @@ class BillingWindow:
         self._build_table(right)
         self._build_action_bar(right)
 
-    # ── Add Cart Panel
+        self._nav_fields = [
+            self.ent_desc,
+            self.ent_rate,
+            self.ent_qty,
+            self.ent_discount
+        ]
+
+    # ── Add Cart Panel ────────────────────────
     def _build_add_cart(self, parent):
         pnl = self._panel(parent, "🛒  Add Item to Cart")
         pnl.pack(fill="x", pady=(0, 10))
@@ -126,7 +254,7 @@ class BillingWindow:
         elif "qty" in label.lower() or "quan" in label.lower():
             self.ent_qty = ent
 
-    # ── Discount Panel
+    # ── Discount Panel ────────────────────────
     def _build_discount(self, parent):
         pnl = self._panel(parent, "🏷️  Discount")
         pnl.pack(fill="x", pady=(0, 10))
@@ -160,7 +288,7 @@ class BillingWindow:
                   ).grid(row=1, column=0, columnspan=2,
                          pady=(12, 4), sticky="ew")
 
-    # ── Summary Panel
+    # ── Summary Panel ─────────────────────────
     def _build_summary(self, parent):
         pnl = self._panel(parent, "📊  Bill Summary")
         pnl.pack(fill="x", pady=(0, 10))
@@ -185,14 +313,14 @@ class BillingWindow:
         stat_box(1, "💰", "Total (Rs.)",  "lbl_total",      "#27ae60")
         stat_box(2, "🏷️", "After Disc.", "lbl_after_disc", "#e67e22")
 
-    # ── Table
+    # ── Table ─────────────────────────────────
     def _build_table(self, parent):
         frame = self._panel(parent, "📋  Current Bill")
         frame.pack(fill="both", expand=True, pady=(0, 10))
 
         cols = ("Qty", "Description", "Rate (Rs.)", "Amount (Rs.)")
         self.tree = ttk.Treeview(frame, columns=cols, show="headings",
-                                 selectmode="browse")
+                                 selectmode="extended")
 
         widths = [55, 200, 95, 100]
         for col, w in zip(cols, widths):
@@ -219,14 +347,15 @@ class BillingWindow:
 
         self.tree.tag_configure("even", background=ROW_EVEN)
         self.tree.tag_configure("odd",  background=ROW_ALT)
-        self.tree.bind("<Delete>", self._remove_selected)
 
-    # ── Action Bar — Remove | Clear All  ........  Print Bill | Back
+        self.tree.bind("<Delete>",    self._remove_selected)
+        self.tree.bind("<BackSpace>", self._remove_selected)
+
+    # ── Action Bar ────────────────────────────
     def _build_action_bar(self, parent):
         bar = tk.Frame(parent, bg=BG)
         bar.pack(fill="x", pady=(0, 6))
 
-        # Left side buttons
         tk.Button(bar, text="🗑️  Remove Selected",
                   font=FONT_BTN, bg=DANGER, fg="white",
                   activebackground="#c0392b", activeforeground="white",
@@ -234,30 +363,29 @@ class BillingWindow:
                   command=self._remove_selected
                   ).pack(side="left", padx=(0, 8))
 
-        tk.Button(bar, text="🔄  Clear All",
+        tk.Button(bar, text="🔄  Clear All  [Del]",
                   font=FONT_BTN, bg="#95a5a6", fg="white",
                   activebackground="#7f8c8d", activeforeground="white",
                   relief="flat", cursor="hand2", bd=0, padx=16, pady=8,
                   command=self._clear_all
                   ).pack(side="left", padx=(0, 8))
 
-        # Right side — Back button pehle pack karo (taake Print se left mein rahe)
         if self.back_cmd:
-            tk.Button(bar, text="⬅  Back",
+            tk.Button(bar, text="⬅  Back  [Esc]",
                       font=FONT_BTN, bg=DANGER, fg="white",
                       activebackground="#c0392b", activeforeground="white",
                       relief="flat", cursor="hand2", bd=0, padx=16, pady=8,
                       command=self.back_cmd
                       ).pack(side="right", padx=(8, 0))
 
-        tk.Button(bar, text="🖨️  Print Bill",
+        tk.Button(bar, text="🖨️  Print Bill  [F2/P]",
                   font=FONT_BTN, bg=GOLD, fg="white",
                   activebackground="#d68910", activeforeground="white",
                   relief="flat", cursor="hand2", bd=0, padx=16, pady=8,
                   command=self._print_bill
                   ).pack(side="right")
 
-    # ── Panel helper
+    # ── Panel helper ──────────────────────────
     def _panel(self, parent, title):
         outer = tk.Frame(parent, bg=PANEL,
                          highlightthickness=1,
@@ -270,7 +398,7 @@ class BillingWindow:
         return outer
 
     # ══════════════════════════════════════════
-    #  Logic
+    #  Logic / Cart Operations
     # ══════════════════════════════════════════
     def _add_to_cart(self, event=None):
         desc   = self.var_desc.get().strip()
@@ -314,27 +442,44 @@ class BillingWindow:
             return
         self.discount_pct = pct
         self._refresh_summary()
+        self.var_disc.set("")
 
     def _remove_selected(self, event=None):
         sel = self.tree.selection()
-        if not sel: return
-        vals = self.tree.item(sel[0], "values")
-        qty_v, desc_v = int(vals[0]), vals[1]
-        for i, item in enumerate(self.cart):
-            if item["desc"] == desc_v and item["qty"] == qty_v:
-                self.cart.pop(i)
-                break
+        if not sel:
+            return
+
+        to_remove = set()
+        for item_id in sel:
+            vals = self.tree.item(item_id, "values")
+            qty_v, desc_v = int(vals[0]), vals[1]
+            to_remove.add((desc_v, qty_v))
+
+        self.cart = [
+            item for item in self.cart
+            if (item["desc"], item["qty"]) not in to_remove
+        ]
+
         self._refresh_table()
         self._refresh_summary()
 
     def _clear_all(self):
-        if not self.cart: return
+        if not self.cart:
+            return
         if messagebox.askyesno("Confirm", "Kya saara cart khali kar dein?"):
-            self.cart.clear()
-            self.discount_pct = 0.0
-            self.var_disc.set("")
-            self._refresh_table()
-            self._refresh_summary()
+            self._do_clear()
+
+    def _clear_all_no_confirm(self):
+        if not self.cart:
+            return
+        self._do_clear()
+
+    def _do_clear(self):
+        self.cart.clear()
+        self.discount_pct = 0.0
+        self.var_disc.set("")
+        self._refresh_table()
+        self._refresh_summary()
 
     def _refresh_table(self):
         for row in self.tree.get_children():
@@ -356,15 +501,19 @@ class BillingWindow:
         self.lbl_total.config(text=f"{total:.2f}")
         self.lbl_after_disc.config(text=f"{after_disc:.2f}")
 
-    def _print_bill(self):
+    def _print_bill(self, event=None):
+        focused = self.win.focus_get()
+        if isinstance(focused, tk.Entry):
+            return  # Entry mein 'p' type hone do
+
         if not self.cart:
             messagebox.showinfo("Empty", "Cart khali hai, kuch add karein pehle!")
             return
 
         win = tk.Toplevel(self.win)
-        win.title("Bill Preview")
+        win.title("Bill Preview  —  [Esc] band karo")
         win.configure(bg=PANEL)
-        win.geometry("520x620")
+        win.geometry("520x640")
         win.resizable(False, False)
 
         txt = tk.Text(win, font=("Courier New", 10), bg=PANEL, fg=TEXT,
@@ -389,7 +538,7 @@ class BillingWindow:
                          f"{it['rate']:>7.2f} {it['amount']:>9.2f}")
         lines += [
             "-" * 50,
-            f"{'Total Items:':<30} {total_qty:>10}",
+            f"{total_qty:>4}\n\n",
             f"{'Sub-Total (Rs.):':<30} {total:>10.2f}",
             f"{'Discount (' + str(self.discount_pct) + '%):':<30} {disc_amt:>10.2f}",
             f"{'After Discount (Rs.):':<30} {after_d:>10.2f}",
@@ -400,12 +549,16 @@ class BillingWindow:
         txt.insert("1.0", "\n".join(lines))
         txt.config(state="disabled")
 
-        tk.Button(win, text="Close", font=FONT_BTN, bg=DANGER, fg="white",
+        tk.Button(win, text="Close  [Esc]", font=FONT_BTN, bg=DANGER, fg="white",
                   relief="flat", cursor="hand2", padx=20, pady=6,
                   command=win.destroy).pack(pady=10)
 
-    # ── Clock Function ────────────────────────────
+        win.bind("<Escape>", lambda e: win.destroy())
+
+    # ── Clock ─────────────────────────────────
     def _tick(self):
         now = datetime.now().strftime("%A, %d %B %Y   %I:%M:%S %p")
         self.lbl_time.config(text=now)
         self.win.after(1000, self._tick)
+
+
